@@ -1,0 +1,932 @@
+﻿@model Tuple<List<Inspinia_MVC5.Models.Model_convenio.Solicitudes_Convenios>, List<Inspinia_MVC5.Models.Model_convenio.Sucursales_Convenios>>
+@{
+    ViewBag.Title = "ListaIndexacion";
+    Layout = "~/Views/Shared/DashboardConvenio.cshtml";
+
+    int MostrarRegistros = Convert.ToInt32(ViewBag.RegistrosMostrar);
+    int pagina = Convert.ToInt32(ViewBag.Pagin_Listado);
+    var contar_pagina = 1;
+    int PaginaSiguiente = pagina + 1;
+    int PaginaAnterior = pagina - 1;
+    double CantidadRegistros = ViewBag.CantidadSolicitud;
+    double Cantidad = (CantidadRegistros / MostrarRegistros);
+    var CantidadPaginas = Math.Ceiling(Cantidad);
+    string permiso = Convert.ToString(Session["tipo"]);
+    
+}
+
+@{
+    if (permiso == "Administrador")
+    {
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>Buscar Convenio</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="@Url.Action("Convenio", "Dashboard_Convenio")">Inicio</a>
+                    </li>
+
+                    <li class="active">
+                        <strong>Buscar convenio</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight" style="padding-bottom:0;">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="widget style1 lazur-bg">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <i class="fa fa-file-pdf-o fa-5x"></i>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <h4> Total Indexaciones </h4>
+                               
+                                    <h2 class="font-bold">@CantidadRegistros</h2>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Lista de convenios</h5>
+
+                            <div class="ibox-tools">
+                                <div class="form-inline">
+                                    <label>Filtrar por: </label>
+
+                                    <select class="select2_demo_3 form-control numerosolicitud" id="numerosolicitud">
+                                        @{
+                                            foreach (var item in ViewBag.solicitudes)
+                                            {
+
+                                                <option value=""></option>
+                                                <option value="@item" style="width:auto;">@item</option>
+                                            }
+                                        }
+                                        <option value=""></option>
+
+                                    </select>
+                                    <select class="select2_demo_3 form-control archivo" id="archivo">
+                                        @{
+                                            foreach (var item in ViewBag.archivo)
+                                            {
+                                                <option value=""></option>
+                                                <option value="@item" style="width:auto;">@item</option>
+                                            }
+                                        }
+
+                                    </select>
+                                    <select class="select2_demo_3 form-control sucursal" id="sucursal">
+                                        @{
+                                            foreach (var item in Model.Item2)
+                                            {
+                                                <option value=""></option>
+                                                <option value="@item.sucursal" style="width:auto;">@item.sucursal</option>
+                                            }
+                                        }
+
+                                    </select>
+
+                                    <input type="text" hidden class="nsolicitudes" name="name" />
+                                    <input type="text" hidden class="archivos" name="name" />
+                                    <input type="text" hidden class="sucursales" name="name" />
+
+                                    <div class="input-group m-r-sm">
+                                        <button type="button" class="btn btn-sm btn-success BuscarSolicitud" id="Buscar">
+                                            <i class="fa fa-search"></i>
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="table-responsive ">
+
+                            <div class="ibox-content">
+
+                                <table class="table  table-bordered table-hover animated fadeInRight" id="TablaSolicitudes" style="width:100%;" role="grid">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="width: auto;">N Solicitud</th>
+                                            <th style="width: auto;">Fecha ingreso</th>
+                                            <th style="width: auto;">Última modificación</th>
+                                            <th style="width: auto;">Archivo</th>
+                                            <th style="width: auto;">Sucursal</th>
+                                            <th style="width: auto;">Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-paginas="@CantidadPaginas">
+                                        @{
+                                            foreach (var item in Model.Item1)
+                                            {
+                                                <tr class="gradeX odd" role="row">
+                                                    <td>@item.solicitud</td>
+                                                    <td>@item.fecha_creacion</td>
+                                                    <td class="center">@item.fecha_actualizacion</td>
+
+                                                    <td class="center">@item.archivo</td>
+                                                    <td class="center">@item.Sucursales_Convenios.sucursal</td>
+
+                                                    <td class="text-center">
+
+                                                        <a href="#" class="btn btn-success btn-sm CapturarDatos" data-toggle="modal" data-target="#EditarModal"
+                                                           data-id_solicitud="@item.Id" data-solicitud="@item.solicitud" data-archivo="@item.archivo" data-sucursal="@item.id_sucursal"><i class="fa fa-edit"></i> Editar </a>
+                                                        <a href="#" class="btn btn-warning btn-sm MostrarPdf" data-toggle="modal" data-target="#PDFModal"
+                                                           data-archivo="@item.archivo"><i class="fa fa-eye"></i> Visualizar </a>
+                                                        <a href="#" class="btn btn-danger btn-sm" onclick="EliminarSolicitud(@item.Id)"><i class="fa fa-trash"></i> Eliminar </a>
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+
+
+                                    </tbody>
+                                    <tfoot>
+
+                                        <tr>
+                                            <td colspan="8">
+
+                                                @if (contar_pagina > 0)
+                                                {
+                                                    if (pagina > 1)
+                                                    {
+                                                        <a href="#" title="Anterior" onclick="verPaginaNueva(@PaginaAnterior)"><i class="fa fa-arrow-circle-o-left" style="font-size: 20px;"></i></a>
+                                                    }
+
+                                                    if (pagina < CantidadPaginas)
+                                                    {
+                                                        <a href="#" title="Siguiente" onclick="verPaginaNueva(@PaginaSiguiente)"> <i class="fa fa-arrow-circle-o-right" style="font-size: 20px;"></i></a>
+                                                    }
+                                                    <label>Mostrando pagina @pagina de @CantidadPaginas</label>
+                                                }
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="EditarModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-file-pdf-o modal-icon"></i>
+                        <h4 class="modal-title">Editar Solicitud</h4>
+                        <input type="hidden" id="solicitud_id">
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <p>Ingrese la información a editar.</p>
+
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i></span>
+                                    <input class="form-control" id="nsolicitud" type="text" placeholder="N solicitud">
+
+                                </div>
+                                <span id="errorSolicitud" class="error text-danger no-margins"></span>
+                            </div>
+
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-file-o fa-fw" aria-hidden="true"></i></span>
+                                    <input class="form-control" id="nombreArchivo" type="text" placeholder="Nombre archivo" disabled>
+                                </div>
+                                <span id="errorNombre" class="error text-danger no-margins"></span>
+                            </div>
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-building-o fa-fw" aria-hidden="true"></i></span>
+                                    <select class="form-control" id="sucursales" type="text" placeholder="Sucursales">
+                                        <option value="0" selected>Seleccion sucursal</option>
+                                        @{
+                                            foreach (var item in Model.Item2)
+                                            {
+                                                <option value="@item.Id">@item.sucursal</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span id="errorSucursal" class="error text-danger no-margins"></span>
+                            </div>
+
+
+                            <div class="form-group text-right">
+                                <button type="reset" class="btn btn-white CerrarModal" data-dismiss="modal">Cerrar</button>
+                                <button class="btn btn-sm btn-success " id="btnEditarSolictud" type="button" onclick="Editar()">Guardar cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="PDFModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-file-pdf-o fa-2x"></i>
+                        <p id="nombrePdf" class="modal-title">Visualizador</p>
+
+                    </div>
+
+                    <div class="modal-body">
+
+
+                        <div class="ibox-content">
+                            <iframe id="VisorPdf" scrolling="no" src="" style="width:100%; height:600px"></iframe>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal CARGA -->
+        <div class="modal fade" id="loadMe" tabindex="-1" role="dialog" aria-labelledby="loadMeLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content pg-content">
+                    <div class="modal-body text-center">
+                        <div class="loader"></div>
+                        <div clas="loader-txt">
+                            <p style="font-size:13px; color:#666;" id="pro_text"><br><br><small style="font-size:11.5px; color:#999;" id="prosmall_text"></small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>Buscar Convenio</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="@Url.Action("Convenio", "Dashboard_Convenio")">Inicio</a>
+                    </li>
+
+                    <li class="active">
+                        <strong>Buscar convenio</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight" style="padding-bottom:0;">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Lista de convenios</h5>
+
+                            <div class="ibox-tools">
+                                <div class="form-inline">
+                                    <label>Filtrar por: </label>
+
+                                    <select class="select2_demo_3 form-control numerosolicitud" id="numerosolicitud">
+                                        @{
+                                            foreach (var item in ViewBag.solicitudes)
+                                            {
+
+                                                <option value=""></option>
+                                                <option value="@item" style="width:auto;">@item</option>
+                                            }
+                                        }
+                                        <option value=""></option>
+
+                                    </select>
+                                    <select class="select2_demo_3 form-control archivo" id="archivo">
+                                        @{
+                                            foreach (var item in ViewBag.archivo)
+                                            {
+                                                <option value=""></option>
+                                                <option value="@item" style="width:auto;">@item</option>
+                                            }
+                                        }
+
+                                    </select>
+                                    <select class="select2_demo_3 form-control sucursal" id="sucursal">
+                                        @{
+                                            foreach (var item in Model.Item2)
+                                            {
+                                                <option value=""></option>
+                                                <option value="@item.sucursal" style="width:auto;">@item.sucursal</option>
+                                            }
+                                        }
+
+                                    </select>
+
+                                    <div class="input-group m-r-sm">
+                                        <button type="button" class="btn btn-sm btn-success BuscarSolicitud" id="Buscar">
+                                            <i class="fa fa-search"></i>
+                                            Buscar
+                                        </button>
+                                    </div>
+                                    <div class="input-group m-r-sm">
+                                        <button type="button" class="btn btn-sm btn-warning descargarExcel"><i class="fa fa-download"></i> Excel</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="table-responsive ">
+
+                            <div class="ibox-content">
+
+                                <table class="table  table-bordered table-hover animated fadeInRight" id="TablaSolicitudes" style="width:100%;" role="grid">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="width: auto;">N Solicitud</th>
+                                            <th style="width: auto;">Fecha ingreso</th>
+                                            <th style="width: auto;">Última modificación</th>
+                                            <th style="width: auto;">Archivo</th>
+                                            <th style="width: auto;">Sucursal</th>
+                                            <th style="width: auto;">Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-paginas="@CantidadPaginas">
+                                        @{
+                                            foreach (var item in Model.Item1)
+                                            {
+                                                <tr class="gradeX odd" role="row">
+                                                    <td>@item.solicitud</td>
+                                                    <td>@item.fecha_creacion</td>
+                                                    <td class="center">@item.fecha_actualizacion</td>
+
+                                                    <td class="center">@item.archivo</td>
+                                                    <td class="center">@item.Sucursales_Convenios.sucursal</td>
+
+                                                    <td class="text-center">
+                                                        <a href="#" class="btn btn-warning btn-sm MostrarPdf" data-toggle="modal" data-target="#PDFModal"
+                                                           data-archivo="@item.archivo"><i class="fa fa-eye"></i> Visualizar </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+
+
+                                    </tbody>
+                                    <tfoot>
+
+                                        <tr>
+                                            <td colspan="8">
+
+                                                @if (contar_pagina > 0)
+                                                {
+                                                    if (pagina > 1)
+                                                    {
+                                                        <a href="#" title="Anterior" onclick="verPaginaNueva(@PaginaAnterior)"><i class="fa fa-arrow-circle-o-left" style="font-size: 20px;"></i></a>
+                                                    }
+
+                                                    if (pagina < CantidadPaginas)
+                                                    {
+                                                        <a href="#" title="Siguiente" onclick="verPaginaNueva(@PaginaSiguiente)"> <i class="fa fa-arrow-circle-o-right" style="font-size: 20px;"></i></a>
+                                                    }
+                                                    <label>Mostrando pagina @pagina de @CantidadPaginas</label>
+                                                }
+                                            </td>
+                                        </tr>
+
+                                    </tfoot>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="EditarModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-clock-o modal-icon"></i>
+                        <h4 class="modal-title">Editar Solicitud</h4>
+                        <small>Verifique todos los campos.</small>
+                        <input type="hidden" id="solicitud_id">
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <p>Ingrese la información a editar.</p>
+
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i></span>
+                                    <input class="form-control" id="nsolicitud" type="text" placeholder="N solicitud">
+
+                                </div>
+                                <span id="errorSolicitud" class="error text-danger no-margins"></span>
+                            </div>
+
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-file-o fa-fw" aria-hidden="true"></i></span>
+                                    <input class="form-control" id="nombreArchivo" type="text" placeholder="Nombre archivo" disabled>
+                                </div>
+                                <span id="errorNombre" class="error text-danger no-margins"></span>
+                            </div>
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-building-o fa-fw" aria-hidden="true"></i></span>
+                                    <select class="form-control" id="sucursales" type="text" placeholder="Sucursales">
+                                        <option value="0" selected>Seleccion sucursal</option>
+                                        @{
+                                            foreach (var item in Model.Item2)
+                                            {
+                                                <option value="@item.Id">@item.sucursal</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span id="errorSucursal" class="error text-danger no-margins"></span>
+                            </div>
+
+
+                            <div class="form-group text-right">
+                                <button type="reset" class="btn btn-white CerrarModal" data-dismiss="modal">Cerrar</button>
+                                <button class="btn btn-sm btn-success " id="btnEditarSolictud" type="button" onclick="Editar()">Guardar cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="PDFModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-file-pdf-o fa-2x"></i>
+                        <p id="nombrePdf" class="modal-title">Visualizador</p>
+
+                    </div>
+
+                    <div class="modal-body">
+
+
+                        <div class="ibox-content">
+                            <iframe id="VisorPdf" scrolling="no" src="" style="width:100%; height:600px"></iframe>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal CARGA -->
+        <div class="modal fade" id="loadMe" tabindex="-1" role="dialog" aria-labelledby="loadMeLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content pg-content">
+                    <div class="modal-body text-center">
+                        <div class="loader"></div>
+                        <div clas="loader-txt">
+                            <p style="font-size:13px; color:#666;" id="pro_text"><br><br><small style="font-size:11.5px; color:#999;" id="prosmall_text"></small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+}
+
+@section Styles {
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/dataTables/dataTablesStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/chosen/chosenStyles")
+    @Styles.Render("~/plugins/select2Styles")
+
+
+}
+
+
+
+@section Scripts{
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/dataTables")
+
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/bundles/inspinia")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/jeditable")
+
+
+
+
+    @Scripts.Render("~/plugins/select2")
+
+
+
+
+
+
+    <script type="text/javascript">
+        //Cpatura de datos al presionar el btn editar
+        $(document).on("click", ".CapturarDatos", function () {
+            var id_solicitud = $(this).data('id_solicitud');
+            var archivo = $(this).data('archivo');
+            var numero_solicitud = $(this).data('solicitud');
+            var sucursal = $(this).data('sucursal');
+
+
+
+
+
+            $("#solicitud_id").val(id_solicitud);
+            $("#nombreArchivo").val(archivo);
+            $("#nsolicitud").val(numero_solicitud);
+            $("#sucursales").val(sucursal);
+
+            console.log(archivo );
+
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+
+
+        //EditarSolicitud
+        function Editar() {
+            var id_solicitud = $("#solicitud_id").val();
+            var numero_solicitud = $("#nsolicitud").val();
+            var sucursal = $("#sucursales").val();
+            var nombreactual = $("#nombreArchivo").val();
+
+            console.log(nombreactual);
+
+
+            if (numero_solicitud == ""){
+                $("#errorSolicitud").text("Este campo es requerido*.");
+                $("#nsolicitud").addClass("error");
+
+            } if (sucursal == 0) {
+                $("#errorSucursal").text("Este campo es requerido*.");
+                $("#sucursales").addClass("error");
+            } else {
+
+                swal({
+                    title: "Estas seguro?",
+                    text: "Los Datos de este Usuario serán Editados.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#ED5565',
+                    confirmButtonText: 'Si',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $("#pro_text").html("Editando Usuario .");
+                            $("#prosmall_text").html("Espere unos instantes...");
+                            $("#loadMe").modal({
+                                backdrop: "static",
+                                keyboard: false,
+                                show: true
+                            });
+                            setTimeout(function () {
+                                console.log("llegamos");
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("EditarSolicitud", "Documentos_convenio")',
+                                    data: { id_solicitud: id_solicitud, numero_solicitud: numero_solicitud, sucursal: sucursal, nombreactual: nombreactual },
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (json) {
+                                        $("#loadMe").modal("hide");
+
+                                        if (json.status == 1) {
+                                            swal({
+                                                title: "Exitoso!",
+                                                text: "La solicitud a sido Editada.",
+                                                type: "success",
+                                                html: true
+                                            }, function () {
+                                                location.href = '@Url.Action("ListaIndexacion", "Documentos_convenio")';
+                                            });
+                                        } else {
+                                            swal("Error!", json.mensaje, "warning");
+                                        }
+                                    }
+                                });
+                            }, 1200);
+                        }
+                    });
+            }
+        }
+
+        function verPaginaNueva(nPagina) {
+        if (nPagina <= 0)
+            nPagina = 1;
+        var data2 = new FormData();
+        console.log(nPagina);
+        data2.append("pagina", nPagina);
+
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ListaIndexacion2", "Documentos_convenio")',
+            processData: false,
+            contentType: false,
+            data: data2,
+            dataType: 'html',
+            beforeSend: function () {
+                $("#TablaSolicitudes").html('');
+                $("#TablaSolicitudes").html('<img src="../../Images/load_2.gif"/>');
+
+            },
+            success: function (data) {
+
+
+                $("#TablaSolicitudes").html('');
+                $("#TablaSolicitudes").html(data);
+            }
+        });
+    }
+
+    </script>
+
+
+
+
+
+
+    <script type="text/javascript">
+        //eliminar mensaje de error perfil
+        $('#nsolicitud').on('input', function () {
+
+            if (this.value != null) {
+                $("#errorSolicitud").text("");
+                $("#nsolicitud").removeClass("error");
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        //eliminar mensaje de error sucursal
+        $('#sucursales').on('change', function () {
+            if (this.value != null) {
+
+                $("#errorSucursal").text("");
+                $("#sucursales").removeClass("error");
+            }
+
+        });
+
+
+    </script>
+    <script>
+        function EliminarSolicitud(id) {
+
+            var id_solicitud = id;
+            console.log(id_solicitud);
+
+            swal({
+                    title: "Estas seguro?",
+                    text: "Los Datos de este Solicitud serán Eliminados.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#ED5565',
+                    confirmButtonText: 'Si',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $("#pro_text").html("Eliminado solicitud .");
+                            $("#prosmall_text").html("Espere unos instantes...");
+                            $("#loadMe").modal({
+                                backdrop: "static",
+                                keyboard: false,
+                                show: true
+                            });
+                            setTimeout(function () {
+                                console.log("llegamos");
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("EliminarSolicitud", "Documentos_convenio")',
+                                    data: { id_solicitud: id_solicitud },
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (json) {
+                                        $("#loadMe").modal("hide");
+
+                                        if (json.estado == 1) {
+                                            swal({
+                                                title: "Exitoso!",
+                                                text: json.mensaje,
+                                                type: "success",
+                                                html: true
+                                            }, function () {
+                                                location.href = '@Url.Action("ListaIndexacion", "Documentos_convenio")';
+                                            });
+                                        } else {
+                                            swal("Error!", json.mensaje, "warning");
+                                        }
+                                    }
+                                });
+                            }, 1600);
+                        }
+                    });
+
+
+
+        }
+    </script>
+
+
+
+
+    <script>
+        
+
+        $(document).on("click", ".BuscarSolicitud", function () {
+
+            var nsolicitud = $("#numerosolicitud").val();
+            var archivo = $("#archivo").val();
+            var sucursal = $("#sucursal").val();
+            $("#ibox-content").load(" #ibox-content");
+
+            var n = $(".nsolicitudes").val(nsolicitud);
+            var a = $(".archivos").val(archivo);
+            var s = $(".sucursales").val(sucursal);
+
+
+
+            if (nsolicitud != "" || archivo != "" || sucursal != "") {
+
+                var data = new FormData();
+                data.append("nsolicitud", $("#numerosolicitud").val());
+                data.append("archivo", $("#archivo").val());
+                data.append("sucursal", $("#sucursal").val());
+
+                
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Filtros", "Documentos_convenio")',
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    enctype: "multipart/form-data",
+                    beforeSend: function () {
+                        $("#TablaSolicitudes").html('');
+                        $("#TablaSolicitudes").html('<img src="../../Images/load_2.gif"/>');
+                    },
+                    success: function (data) {
+                       
+                        $("#TablaSolicitudes").html(data);
+                        $(".numerosolicitud").select2({
+                            placeholder: "Numero de solicitud",
+                            with: "200px",
+
+                        }).select2("val", '');
+
+                        $(".archivo").select2({
+                            placeholder: "Nombre de archivo",
+                            with: "200px"
+                        }).select2("val", '');
+
+                        $(".sucursal").select2({
+                            placeholder: "Sucursal",
+                            with: "200px"
+                        }).select2("val", '');
+
+                        $(".select2-container").css('height', '36px');
+                        $(".select2-container").css('width', '250px');
+
+                        $(".select2-selection--single").css('height', '31px');
+                        $(".select2-selection__rendered").css('text-align', 'left');
+
+                        $(".select2 - results__options").css('width', 'auto');
+                        
+                    }
+                });
+            }else{
+                swal({
+                    title: "¡Mensaje!",
+                    text: "Debe Ingresar un valor de Busqueda",
+                    type: "warning",
+                    html: false
+                });
+
+
+            }
+
+        });
+    </script>
+    
+    <script type="text/javascript">
+
+        $(document).on("click", ".MostrarPdf", function () {
+
+            var archivo = $(this).data('archivo');
+            var n = document.getElementById("nombrePdf");
+            n.innerText = archivo;
+            document.getElementById('VisorPdf').setAttribute("src", "/PDF/" + archivo);
+            console.log(archivo);
+
+        });
+
+    </script>
+
+    <script>
+        function ValidarSalida() {
+            swal({
+                title: "Alerta",
+                text: "Esta seguro que desea salir?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    window.location.href = '@Url.Action("Salir", "Login_convenio")';
+                }
+            }
+            );
+        }
+
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(".numerosolicitud").select2({
+                placeholder: "Numero de solicitud",
+                allowClear: true,
+                id: "0",
+                with: "200px",
+            });
+
+
+            $(".archivo").select2({
+                placeholder: "Nombre de archivo",
+                allowClear: true,
+                id: "0",
+                with: "200px"
+            });
+
+            $(".sucursal").select2({
+                placeholder: "Sucursal",
+                allowClear: true,
+                id: "0",
+                with: "200px"
+            });
+
+            $(".select2-container").css('height', '36px');
+            $(".select2-container").css('width', '250px');
+
+            $(".select2-selection--single").css('height', '31px');
+            $(".select2-selection__rendered").css('text-align', 'left');
+
+            $(".select2 - results__options").css('width', 'auto');
+
+
+        });
+    </script>
+
+}
+
+

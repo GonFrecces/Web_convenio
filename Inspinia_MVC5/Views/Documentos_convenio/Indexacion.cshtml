@@ -1,0 +1,681 @@
+﻿@model Tuple<List<Inspinia_MVC5.Models.Model_convenio.Sucursales_Convenios>, List<Inspinia_MVC5.Models.Model_convenio.Files>>
+@{
+    ViewBag.Title = "Indexacion";
+    Layout = "~/Views/Shared/DashboardConvenio.cshtml";
+
+    string rut = ViewBag.RutUsuario;
+    int cantidad = ViewBag.Archivos;
+    string ruta = ViewBag.RutaOrigen;
+}
+
+<h2>Indexacion</h2>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Publicar Convenio</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Convenio", "Dashboard_Convenio")">Inicio</a>
+            </li>
+
+            <li class="active">
+                <strong>Publicar convenio</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" style="padding-bottom:0;">
+
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Visualizador de archivo</h5>
+
+                </div>
+                <div class="ibox-content">
+                    <iframe id="VisorPdf" scrolling="no" src="" style="width: 100%; height: 697px; border: none;"></iframe>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Agregar archivo</h5>
+                            <div class="ibox-tools">
+                                <button class="btn btn-primary btn-sm Actualizar"><i class="fa fa-refresh"></i> Actualizar</button>
+                                <label title="Upload file" for="files" class="btn btn-sm btn-success">
+                                    <input type="file" class="Files" name="files[]" id="files" style="display:none" onchange=" return validarPDF()" multiple>
+                                    <i class="fa fa-plus"></i> Agregar
+                                </label>
+
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+
+                            <table class="table table-hover " id="ListaPdf" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th data-orderable="false">Nombre pdf</th>
+                                        <th style="text-align: center;" data-orderable="false">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablebody">
+                                    @{
+                                        foreach (var item in Model.Item2)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a id="pdf_name" class="VisualizarPDF" data-path="@item.FileName"><h4>@item.FileName</h4></a>
+                                                </td>
+
+                                                <td class='text-center'>
+                                                    <a class='btn btn-xs btn-danger borrar text-center' data-file="@item.FileName"><span aria-hidden='true'>X</span></a>
+                                                </td>
+
+
+                                            </tr>
+                                        }
+                                    }
+
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Datos de archivo</h5>
+
+                        </div>
+                        <div class="ibox-content">
+                            <form>
+                                <div class="form-group no-margins" style="height:58px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i></span>
+                                        <input class="form-control" id="nsolicitud" type="text" placeholder="N solicitud" disabled>
+                                    </div>
+                                    <span id="errorSolicitud" class="error text-danger no-margins"></span>
+                                </div>
+                                <div class="form-group no-margins" style="height:58px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
+                                        <input class="form-control" id="fecha"  placeholder="Fecha" disabled>
+                                    </div>
+                                    <span id="errorFecha" class="error text-danger no-margins"></span>
+
+                                </div>
+                                <div class="form-group no-margins" style="height:58px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-file-o fa-fw" aria-hidden="true"></i></span>
+                                        <input class="form-control" id="nombreArchivo" type="text" placeholder="Nombre archivo" disabled>
+                                    </div>
+                                    <span id="errorNombre" class="error text-danger no-margins"></span>
+                                </div>
+                                <div class="form-group no-margins" style="height:58px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-building-o fa-fw" aria-hidden="true"></i></span>
+                                        <select class="form-control" id="sucursal" type="text" placeholder="Sucursales" disabled>
+                                            <option value="0" selected>Seleccion </option>
+                                            @{
+                                                foreach (var item in Model.Item1)
+                                                {
+                                                   
+                                                    <option value="@item.Id">@item.sucursal</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <span id="errorSucursal" class="error text-danger no-margins"></span>
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="ibox-footer text-right">
+                            <button class="btn btn-sm btn-success " id="btnAgregarSolictud" type="button" onclick="AgregarSolicitud()" disabled>Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </div>
+    </div>
+</div>
+<!-- Modal CARGA -->
+<div class="modal fade" id="loadMe" tabindex="-1" role="dialog" aria-labelledby="loadMeLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content pg-content">
+            <div class="modal-body text-center">
+                <div class="loader"></div>
+                <div clas="loader-txt">
+                    <p style="font-size:13px; color:#666;" id="pro_text"><br><br><small style="font-size:11.5px; color:#999;" id="prosmall_text"></small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+}
+
+@section Styles {
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/dataTables/dataTablesStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/plugins/dataPickerStyles")
+
+
+}
+
+
+
+@section Scripts{
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/dataPicker")
+
+    @Scripts.Render("~/plugins/sweetAlert")
+
+    <script>
+
+        $(document).ready(function () {
+
+           $("#ListaPdf").DataTable({
+                "destroy": true,
+                "scrollY": 200,
+                "scrollX": true,
+                "info": true,
+                "infoCallback": function (settings, start, end, max, total, pre) {
+                   return "Total: " + end + " archivos";
+                },
+                "filter": false,
+                "searching": false,
+                "paging": false,
+                "processing": true,
+                "order": false,
+                "ordering": false,
+                "orderable": false,
+            });
+
+
+            $(function () {
+                $("#fecha").datepicker();
+            });
+
+            $(".dataTables_scrollBody").css("height", "200px");
+
+
+        });
+
+    </script>
+
+    <script>
+        $(document).on('change', '.Files', function (event) {
+
+            var table = $("#ListaPdf").DataTable({
+                "scrollY": 200,
+                "scrollX": true,
+                "details": false,
+                "destroy":true,
+                "info": true,
+                "infoCallback": function (settings, start, end, max, total, pre) {
+                    return "Total: " + end + " archivos";
+                },
+                "filter": false,
+                "order": false,
+                "ordering": false,
+                "orderable": false,
+                "paging":false,
+                "searching": false,
+                "processing": true,
+                "serverSide":true,
+                "ajax": {
+                    "url": "@Url.Content("~/Documentos_convenio/ListaArchivos")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "async": "true",
+                },
+
+                 "columns": [
+
+                     {
+                         "data": "FileName", "render": function (data) { return "<td><a id='pdf_name' class='VisualizarPDF' data-path='"+data+"'><h4>" + data + "</h4></a></td>" }
+                     },
+
+                     {
+                         "data": "FileName", "className":"text-center", "render": function (data) { return "<td class='text-center'><a class='btn btn-xs btn-danger borrar text-center' data-file='"+data+"' ><span aria-hidden='true'>X</span></a></td>" }
+                     }
+
+
+                ],
+
+
+            });
+            table.ajax.reload(null, false);
+        });
+
+
+
+    </script>
+
+
+
+    <script type="text/javascript">
+        function validarPDF() {
+            var archivoInput = document.getElementById('files');
+            var archivoRuta = archivoInput.value;
+            var externsion = /(.pdf)$/i;
+
+            if (!externsion.exec(archivoRuta)) {
+                swal({
+                    title: "¡Mensaje!",
+                    text: "Verifique si seleccionó un PDF",
+                    type: "warning",
+                    html: true,
+                    confirmButtonColor: '#1c84c6'
+                });
+                archivoInput.value = '';
+            } else {
+
+                if (archivoInput.files.length) {
+
+                    for (var i = 0; i < archivoInput.files.length; i++) {
+
+                        var files = archivoInput.files[i];
+                        var dataString = new FormData();
+                        dataString.append('files', files);
+                        console.log(files);
+
+                        $.ajax({
+                            url: '@Url.Action("FileUpload", "Documentos_convenio")',
+                            type: "POST",
+                            data: dataString,
+                            contentType: false,
+                            processData: false,
+                            async: false,
+                            success: function (data) {
+                                if (data.status == 1) {
+                                    swal("Bien!", data.mensaje, "success");
+
+                                } else {
+                                    swal("Error!", data.mensaje, "warning");
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+        }
+
+        $(document).on('click', '.VisualizarPDF', function (event) {
+
+
+            let name = $(this).data('path');
+           
+            const RutaUbicacion = '@ruta';
+            
+            document.getElementById('VisorPdf').setAttribute("src", RutaUbicacion +name) ;
+
+            console.log(RutaUbicacion + name);
+            document.getElementById('nsolicitud').disabled = false;
+            document.getElementById('fecha').disabled = false;
+            document.getElementById('sucursal').disabled = false;
+            document.getElementById('btnAgregarSolictud').disabled = false;
+            document.getElementById('nombreArchivo').value = name;
+        });
+
+        $(document).on('click', '.borrar', function (event) {
+
+            var o = this;
+            var nombre = $(this).data('file');
+
+
+            swal({
+                title: "Estas seguro?",
+                text: "El documento eliminará de la lista.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+                function (isConfirm) {
+
+                    if (isConfirm) {
+                        setTimeout(function () {
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("EliminarPdf", "Documentos_convenio")',
+                                data: { nombre: nombre },
+                                dataType: "json",
+                                async: false,
+                                success: function (json) {
+
+                                    if (json.estado == 1) {
+                                        swal({
+                                            title: "Exitoso!",
+                                            text: "El documento se ha eliminado con exito.!",
+                                            type: "success",
+                                            html: true
+                                        }, function () {
+                                            $("#ListaPdf").DataTable({
+                                                "scrollY": 200,
+                                                "scrollX": true,
+                                                "details": false,
+                                                "destroy": true,
+                                                "info": true,
+                                                "infoCallback": function (settings, start, end, max, total, pre) {
+                                                    return "Total: " + end + " archivos";
+                                                },
+                                                "filter": false,
+                                                "order": false,
+                                                "ordering": false,
+                                                "orderable": false,
+                                                "paging": false,
+                                                "searching": false,
+                                                "processing": true,
+                                                "serverSide": true,
+                                                "ajax": {
+                                                    "url": "@Url.Content("~/Documentos_convenio/ListaArchivos")",
+                                                    "type": "POST",
+                                                    "datatype": "json",
+                                                    "async": "true",
+                                                },
+                                                "columns": [
+                                                    {
+                                                        "data": "FileName", "render": function (data) { return "<td><a id='pdf_name' class='VisualizarPDF' data-path='" + data +"'><h4>" + data + "</h4></a></td>" }
+                                                    },
+                                                    {
+                                                        "data": "FileName", "className": "text-center", "render": function (data) { return "<td class='text-center'><a class='btn btn-xs btn-danger borrar text-center' data-file='" + data + "' ><span aria-hidden='true'>X</span></a></td>" }
+                                                    }
+                                                ],
+                                            });
+
+                                        });
+
+
+                                        o.closest('tr').remove();
+                                        document.getElementById('VisorPdf').src = " ";
+                                        document.getElementById('nombreArchivo').value = "";
+                                        document.getElementById('fecha').value = "";
+                                        document.getElementById('nsolicitud').value = "";
+                                        document.getElementById('sucursal').value = 0;
+
+                                        document.getElementById('nsolicitud').disabled = true;
+                                        document.getElementById('fecha').disabled = true;
+                                        document.getElementById('nombreArchivo').disabled = true;
+                                        document.getElementById('sucursal').disabled = true;
+                                        document.getElementById('btnAgregarSolictud').disabled = true;
+
+
+                                    } else {
+                                        swal("Error!", json.mensaje, "warning");
+                                    }
+                                }
+                            });
+                        }, 1600);
+                    }
+                });
+
+
+        });
+
+
+        $(document).on('click', '.Actualizar', function (event) {
+            var table = $("#ListaPdf").DataTable({
+                "scrollY": 200,
+                "scrollX": true,
+                "details": false,
+                "destroy":true,
+                "info": true,
+                "infoCallback": function (settings, start, end, max, total, pre) {
+                    return "Total: " + end + " archivos";
+                },
+                "filter": false,
+                "order": false,
+                "ordering": false,
+                "orderable": false,
+                "paging":false,
+                "searching": false,
+                "processing": true,
+                "serverSide":true,
+                "ajax": {
+                    "url": "@Url.Content("~/Documentos_convenio/ListaArchivos")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "async": "false",
+
+                },
+
+                 "columns": [
+
+                     {
+                         "data": "FileName", "render": function (data) { return "<td><a id='pdf_name' class='VisualizarPDF' data-path='" + data +"'><h4>" + data + "</h4></a></td>" }
+                     },
+
+                     {
+                         "data": "FileName", "className":"text-center", "render": function (data) { return "<td class='text-center'><a class='btn btn-xs btn-danger borrar text-center' data-file='"+data+"' ><span aria-hidden='true'>X</span></a></td>" }
+                     }
+
+
+                ],
+
+
+            });
+            table.ajax.reload(null, false);
+
+        });
+
+    </script>
+
+    <script>
+        $("#nsolicitud").on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value != null) {
+                $("#errorSolicitud").text("");
+                $("#nsolicitud").removeClass("error");
+
+            }
+        });
+    </script>
+
+
+
+    <script type="text/javascript">
+        function AgregarSolicitud() {
+            $("#VisorPdf").hide();
+            var numerosolicutd = document.getElementById('nsolicitud').value;
+            var fecha =   document.getElementById('fecha').value;
+            var nombre = document.getElementById('nombreArchivo').value;
+            var sucursal = document.getElementById('sucursal').value;
+
+
+            console.log(numerosolicutd + "  " + fecha + "  " + nombre + " " + sucursal);
+
+            if (numerosolicutd == "") {
+                $("#errorSolicitud").text("Este campo es requerido*.");
+                $("#nsolicitud").addClass("error");
+            } else if (fecha == "") {
+                $("#errorFecha").text("Este campo es requerido*");
+                $("#fecha").addClass("error");
+            
+            } else if (sucursal == 0 ) {
+                $("#errorSucursal").text("Este campo es requerido*.");
+                $("#sucursal").addClass("error");
+
+            } else {
+
+
+                swal({
+                    title: "Estas seguro?",
+                    text: "El documento se indexará en la Base de Datos.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#ED5565',
+                    confirmButtonText: 'Si',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                },
+                function (isConfirm) {
+
+                    if (isConfirm) {
+                        $("#pro_text").html("Indexando documento.");
+                        $("#prosmall_text").html("Espere unos instantes...");
+                        $("#loadMe").modal({
+                            backdrop: "static",
+                            keyboard: false,
+                            show: true
+                        });
+
+                        setTimeout(function () {
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("AgregarSolicitud", "Documentos_convenio")',
+                                data: { numerosolicutd: numerosolicutd, fecha: fecha, nombre: nombre, sucursal: sucursal },
+                                dataType: "json",
+                                success: function (json) {
+                                    $("#loadMe").modal("hide");
+
+                                    if (json.status == 1) {
+                                        swal({
+                                            title: "Exitoso!",
+                                            text: "El documento se ha indexado con exito.!",
+                                            type: "success"
+                                        }, function () {
+                                            $('#ListaPdf tr').each(function () {
+                                                $(this).find('a').each(function () {
+                                                    var nombrePdf = this.text;
+                                                    if (nombrePdf == nombre) {
+                                                        $(this).closest('tr').remove();
+                                                        document.getElementById('nsolicitud').value = "";
+                                                        document.getElementById('fecha').value = "";
+                                                        document.getElementById('nombreArchivo').value = "";
+                                                        document.getElementById('sucursal').value = 0;
+                                                        /*document.getElementById('VisorPdf').src = '';*/
+
+
+
+                                                    }
+
+                                                })
+                                            });
+                                        });
+
+
+                                    } else {
+                                        swal("Error!", json.mensaje, "warning");
+
+                                    }
+                                }
+                            });
+                        }, 1600);
+                    } else {
+                        $("#VisorPdf").show();
+                    }
+                });
+
+
+
+            }
+        }
+
+
+        $('#nsolicitud').on('input', function () {
+
+            if (this.value != null) {
+                $("#errorSolicitud").text("");
+                $("#nsolicitud").removeClass("error");
+
+
+            }
+        });
+
+        $('#fecha').on('input', function () {
+
+            if (this.value != null) {
+                $("#errorFecha").text("");
+                $("#fecha").removeClass("error");
+
+
+            }
+        });
+
+        $('#nombrearchivo').on('input', function () {
+
+            if (this.value != null) {
+
+                $("#errorNombre").text("");
+                $("#nombreArchivo").removeClass("error");
+            }
+        });
+
+
+    </script>
+    <script type="text/javascript">
+        $('#sucursal').on('change', function () {
+
+            $("#errorSucursal").text("");
+            $("#sucursal").removeClass("error");
+
+
+        });
+    </script>
+    <script>
+        function ValidarSalida() {
+            $("#VisorPdf").hide();
+
+            swal({
+                title: "Alerta",
+                text: "Esta seguro que desea salir?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    window.location.href = '@Url.Action("Salir", "Login_convenio")';
+                } else {
+                    $("#VisorPdf").show();
+                }
+            }
+            );
+        }
+
+
+    </script>
+    
+
+}

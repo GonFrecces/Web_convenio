@@ -1,0 +1,135 @@
+﻿
+@{
+    ViewBag.Title = "CambioRuta";
+    Layout = "~/Views/Shared/DashboardConvenio.cshtml";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Configuración de  ruta</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="#">Inicio</a>
+            </li>
+
+            <li class="breadcrumb-item active">
+                <strong>Configuración de ruta</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Ingrese la ruta a modificar</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        
+                        
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content text-center">
+                    <div class="form-inline">
+                        <div class="input-group col-sm-5">
+                            <span class="input-group-addon"><i class="fa fa-sitemap fa-lg" aria-hidden="true"></i></span>
+                            <input class="form-control" type="text" id="ruta" placeholder="Ej: \\virtualfile-vip-01\img_public\">
+                        </div>
+                        <button class="btn btn-success " onclick="GuardaRuta()">Cambiar</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    @Styles.Render("~/plugins/footableStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/footable")
+    @Scripts.Render("~/plugins/sweetAlert")
+
+    <script>
+    function GuardaRuta() {
+
+        var ruta = document.getElementById("ruta").value;
+        console.log(ruta);
+            swal({
+                title: "Estas seguro?",
+                text: "La ruta se guardará en la Base de Datos.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    setTimeout(function () {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ConfigurarRuta", "CambioRuta_convenio")',
+                            data: { ruta: ruta },
+                            dataType: "json",
+                            async: false,
+                            success: function (json) {
+                                if (json.status == 1) {
+                                    swal({
+                                        title: "Exitoso!",
+                                        text: json.mensaje,
+                                        type: "success",
+                                        html: true
+                                    });
+                                } else {
+                                    swal("Error!", json.mensaje, "warning");
+                                }
+                            }
+                        });
+                    }, 1000);
+
+                }
+            }
+            );
+        }
+    </script>
+    <script>
+        function ValidarSalida() {
+            
+            swal({
+                title: "Alerta",
+                text: "Esta seguro que desea salir?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    window.location.href = '@Url.Action("Salir", "Login_convenio")';
+                }
+            }
+            );
+        }
+
+
+    </script>
+}
+

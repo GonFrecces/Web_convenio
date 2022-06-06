@@ -1,0 +1,55 @@
+﻿<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <span>
+                        <img alt="image" src="~/Images/logo_VF.png" />
+                    </span>
+
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a href="@Url.Action("Profile", "AppViews")">Profile</a></li>
+                        <li><a href="@Url.Action("Contacts", "AppViews")">Contacts</a></li>
+                        <li><a href="@Url.Action("Inbox", "Mailbox")">Mailbox</a></li>
+                        <li class="divider"></li>
+                        <li><a href="@Url.Action("Login", "Pages")">Logout</a></li>
+                    </ul>
+                </div>
+                <div class="logo-element">
+                    VF
+                </div>
+            </li>
+            <li class="@Html.IsSelected(controller: "Paginas")">
+                <a href="@Url.Action("Login_Acceso", "Login_convenio")"><i class="fa fa-home fa-lg"></i> <span class="nav-label" data-i18n="nav.layouts">Inicio</span> </a>
+            </li>
+
+            <li class="@Html.IsSelected(controller: "Stock")">
+                <a href="@Url.Action("Dashboard_1", "Dashboards")"><i class="fa fa-files-o fa-lg"></i> <span class="nav-label" data-i18n="nav.dashboard">Convenio</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Dashboards", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Indexacion", "Documentos_convenio")">Box / Publicar</a></li>
+                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("ListaIndexacion", "Documentos_convenio")">Buscar convenio</a></li>
+                </ul>
+
+            </li>
+            <li class="@Html.IsSelected(controller: "Dashboards")">
+                <a href="@Url.Action("Dashboard_1", "Dashboards")"><i class="fa fa-building-o fa-lg"></i> <span class="nav-label" data-i18n="nav.dashboard">Sucursales</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Dashboards", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("MantenedorSucursales", "Sucursales_convenio")">Mantenedor de Sucursales</a></li>
+
+                </ul>
+            </li>
+
+            <li class="@Html.IsSelected(controller: "Graphs")">
+                <a href="#"><i class="fa fa-user fa-lg"></i> <span class="nav-label" data-i18n="nav.graphs">Usuarios</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Graphs", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Flot")"><a href="@Url.Action("MantenedorUsuarios", "Usuarios_convenio")">Mantenedor de Usuarios</a></li>
+                    <li class="@Html.IsSelected(action: "Rickshaw")"><a href="@Url.Action("Historial_log", "Log_convenio")">Historial de conexión</a></li>
+
+                </ul>
+            </li>
+            <li class="@Html.IsSelected(controller: "Mailbox")">
+                <a href="@Url.Action("CambioRuta", "CambioRuta_convenio")"><i class="fa fa-sitemap fa-lg"></i> <span class="nav-label" data-i18n="nav.mailbox">Configurar ruta </span></a>
+            </li>
+        </ul>
+    </div>
+</nav>

@@ -1,0 +1,221 @@
+﻿@model Tuple<List<Inspinia_MVC5.Models.Model_convenio.Login_Info_Convenios>, List<Inspinia_MVC5.Models.Model_convenio.Usuarios_Convenios>>
+@{
+    ViewBag.Title = "Historial_log";
+    Layout = "~/Views/Shared/DashboardConvenio.cshtml";
+
+    int MostrarRegistros = Convert.ToInt32(ViewBag.RegistrosMostrar);
+    int pagina = Convert.ToInt32(ViewBag.Pagin_Listado);
+    var contar_pagina = 1;
+    int PaginaSiguiente = pagina + 1;
+    int PaginaAnterior = pagina - 1;
+    double CantidadRegistros = ViewBag.CantidadLog;
+    double Cantidad = (CantidadRegistros / MostrarRegistros);
+    var CantidadPaginas = Math.Ceiling(Cantidad);
+}
+
+@{
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>Historial de conexión</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="index.html">Inicio</a>
+                </li>
+
+                <li class="active">
+                    <strong>Historial de conexión</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Tabla registros log</h5>
+
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table  table-bordered table-hover " id="tablaLog">
+
+
+                            <thead>
+                                <tr role="row">
+
+                                    <th style="width: auto;">Usuario</th>
+                                    <th style="width: auto;">Tipo</th>
+                                    <th style="width: auto;">Login</th>
+                                    <th style="width: auto;">Tiempo log</th>
+                                    <th style="width: auto;">Logout</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody data-paginas="@CantidadPaginas">
+                                @{
+                                    foreach (var item in Model.Item1)
+                                    {
+
+
+                                        var tipo = Model.Item2.Where(x => x.Id == item.id_usuario).Select(x => x.tipo).FirstOrDefault();
+                                        var rut = Model.Item2.Where(x => x.Id == item.id_usuario).Select(x => x.nombre).FirstOrDefault();
+
+                                        var tiempo = Convert.ToInt32(item.tiempo_log);
+
+                                        if (tiempo < 60)
+                                        {
+
+
+                                            <tr class="gradeX odd" role="row">
+
+                                                <td>@rut</td>
+                                                <td>@tipo</td>
+                                                <td class="center">@item.login</td>
+                                                <td class="center">@tiempo segundos</td>
+                                                <td class="center">@item.logout</td>
+
+                                            </tr>
+                                        }
+                                        if (tiempo >= 60)
+                                        {
+                                            var total = Convert.ToDouble(tiempo / 60);
+
+                                            <tr class="gradeX odd" role="row">
+
+                                                <td>@rut</td>
+                                                <td>@tipo</td>
+                                                <td class="center">@item.login</td>
+                                                <td class="center">@total minutos</td>
+                                                <td class="center">@item.logout</td>
+
+                                            </tr>
+                                        }
+                                        if (tiempo >= 3600)
+                                        {
+                                            var total = Convert.ToDouble(tiempo / 60);
+                                            <tr class="gradeX odd" role="row">
+
+                                                <td>@rut</td>
+                                                <td>@tipo</td>
+                                                <td class="center">@item.login</td>
+                                                <td class="center">@total horas</td>
+                                                <td class="center">@item.logout</td>
+
+                                            </tr>
+                                        }
+
+
+                                    }
+                                }
+
+
+                            </tbody>
+                            <tfoot>
+
+                                <tr>
+                                    <td colspan="8">
+
+                                        @if (contar_pagina > 0)
+                                        {
+                                            if (pagina > 1)
+                                            {
+                                                <a href="#" title="Anterior" onclick="verPaginaNueva(@PaginaAnterior)"><i class="fa fa-arrow-circle-o-left" style="font-size: 20px;"></i></a>
+                                            }
+
+                                            if (pagina < CantidadPaginas)
+                                            {
+                                                <a href="#" title="Siguiente" onclick="verPaginaNueva(@PaginaSiguiente)"> <i class="fa fa-arrow-circle-o-right" style="font-size: 20px;"></i></a>
+                                            }
+                                            <label>Mostrando pagina @pagina de @CantidadPaginas</label>
+                                        }
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Styles {
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/dataTables/dataTablesStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/chosen/chosenStyles")
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/iCheck")
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/bundles/inspinia")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/jeditable")
+
+    <script>
+        function verPaginaNueva(nPagina) {
+            if (nPagina <= 0)
+                nPagina = 1;
+            var data2 = new FormData();
+            console.log(nPagina);
+            data2.append("pagina", nPagina);
+
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Historial_log2", "Log_convenio")',
+                processData: false,
+                contentType: false,
+                data: data2,
+                dataType: 'html',
+                beforeSend: function () {
+                    $("#tablaLog").html('');
+                    $("#tablaLog").html('<img src="../../Images/load_2.gif"/>');
+
+                },
+                success: function (data) {
+
+
+                    $("#tablaLog").html('');
+                    $("#tablaLog").html(data);
+                }
+            });
+        }
+    </script>
+    <script>
+        function ValidarSalida() {
+
+            swal({
+                title: "Alerta",
+                text: "Esta seguro que desea salir?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#ED5565',
+                confirmButtonText: 'Si',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    window.location.href = '@Url.Action("Salir", "Login_convenio")';
+                }
+            }
+            );
+        }
+
+
+    </script>
+}
+

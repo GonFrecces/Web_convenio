@@ -1,0 +1,806 @@
+﻿@model Tuple<List<Inspinia_MVC5.Models.Model_convenio.Usuarios_Convenios>, List<Inspinia_MVC5.Models.Model_convenio.Sucursales_Convenios>>
+@{
+    ViewBag.Title = "MantenedorUsuarios";
+    Layout = "~/Views/Shared/DashboardConvenio.cshtml";
+
+    int MostrarRegistros = Convert.ToInt32(ViewBag.RegistrosMostrar);
+    int pagina = Convert.ToInt32(ViewBag.Pagin_Listado);
+    var contar_pagina = 1;
+    int PaginaSiguiente = pagina + 1;
+    int PaginaAnterior = pagina - 1;
+    double CantidadRegistros = ViewBag.CantidadUsuarios;
+    double Cantidad = (CantidadRegistros / MostrarRegistros);
+    var CantidadPaginas = Math.Ceiling(Cantidad);
+
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="border-left: 15px;">Usuarios</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Indexacion", "Documentos_convenio")">Inicio</a>
+            </li>
+
+            <li class="active">
+                <strong>Usuarios</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+@{
+
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="widget style1 navy-bg">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <i class="fa fa-check-circle fa-5x"></i>
+                        </div>
+                        <div class="col-xs-8 text-right">
+                            <h4> Usuarios Activos </h4>
+                            @{
+                                <h2 class="font-bold">@ViewBag.Activo</h2>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="widget style1 red-bg">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <i class="fa fa-times-circle fa-5x"></i>
+                        </div>
+                        <div class="col-xs-8 text-right">
+                            <h4> Usuarios Inactivos </h4>
+                            @{
+
+                                <h2 class="font-bold">@ViewBag.Inactivo</h2>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Listado de usuarios</h5>
+
+                        <div class="ibox-tools">
+                            <div class="form-inline">
+
+                                <div class="input-group m-r-sm">
+                                    <input type="search" class="form-control input-sm" id="Dato_busqueda"> <span class="input-group-btn">
+                                        <button type="button" class="btn btn-sm btn-success BuscarUsuarios" id="Buscar">
+                                            <i class="fa fa-search"></i>
+                                            Buscar
+                                        </button>
+                                    </span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-warning descargarExcel"><i class="fa fa-download"></i> Excel</button>
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#AgregarUsuario"><i class="fa fa-plus"></i> Usuario</button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="ibox-content tabla_usuario">
+
+                        <table class="table  table-bordered table-hover " id="TablaUsuarios">
+
+
+                            <thead>
+                                <tr role="row">
+                                    <th style="width: 156.672px;" data-orderable="false">Estado</th>
+                                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 156.672px;">Rut</th>
+                                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 196.516px;">Tipo</th>
+                                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 175.547px;">Sucursal</th>
+                                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending" style="width: 91.7969px;">Fecha creación</th>
+                                    <th tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 132.469px;" data-orderable="false">Acciones</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody data-paginas="@CantidadPaginas">
+                                @{
+                                    foreach (var item in Model.Item1)
+                                    {
+                                        var id = item.Id;
+                                        var rut = item.nombre;
+                                        var tipo = item.tipo;
+                                        var sucursal = item.id_sucursal;
+                                        var nombre_sucursal = Model.Item2.Where(x => x.Id == sucursal).Select(x => x.sucursal).FirstOrDefault();
+
+                                        <tr class="gradeX odd" role="row">
+                                            @if (item.estado == 1)
+                                            {
+                                                <td class="center">
+                                                    <div class="switch">
+                                                        <div class="onoffswitch">
+                                                            <input type="checkbox" checked onchange="cambiaestado(@id)" class="onoffswitch-checkbox" id="@item.Id">
+                                                            <label class="onoffswitch-label" for="@item.Id">
+                                                                <span class="onoffswitch-inner"></span>
+                                                                <span class="onoffswitch-switch"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                            }
+                                            else
+                                            {
+                                                <td class="center">
+                                                    <div class="switch">
+                                                        <div class="onoffswitch">
+                                                            <input type="checkbox" class="onoffswitch-checkbox" onchange="cambiaestado(@item.Id)" id="@item.Id">
+                                                            <label class="onoffswitch-label" for="@item.Id">
+                                                                <span class="onoffswitch-inner"></span>
+                                                                <span class="onoffswitch-switch"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+
+                                            }
+                                            <td>@rut</td>
+                                            <td>@tipo</td>
+                                            <td class="center">@nombre_sucursal</td>
+                                            <td class="center">@item.fecha_creacion</td>
+                                            <td class="text-center">
+
+                                                <a href="#" class="btn btn-success btn-sm CapturarDatos" data-toggle="modal" data-target="#EditarModal"
+                                                   data-id_usurio="@item.Id" data-rut="@item.nombre" data-tipo="@item.tipo" data-sucursal="@item.id_sucursal"><i class="fa fa-edit"></i> Editar </a>
+
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+
+                            </tbody>
+                            <tfoot>
+                                
+                                <tr>
+                                    <td colspan="8">
+
+                                        @if (contar_pagina > 0)
+                                        {
+                                            if (pagina > 1)
+                                            {
+                                                <a href="#" title="Anterior" onclick="verPaginaNueva(@PaginaAnterior)"><i class="fa fa-arrow-circle-o-left" style="font-size: 20px;"></i></a>
+                                            }
+
+                                            if (pagina < CantidadPaginas)
+                                            {
+                                                <a href="#" title="Siguiente" onclick="verPaginaNueva(@PaginaSiguiente)"> <i class="fa fa-arrow-circle-o-right" style="font-size: 20px;"></i></a>
+                                            }
+                                            <label>Mostrando pagina @pagina de @CantidadPaginas</label>
+                                        }
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="modal inmodal" id="AgregarUsuario" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    <i class="fa fa-user modal-icon"></i>
+                    <h4 class="modal-title">Agregar Usuario</h4>
+                    <small>Verifique todos los campos.</small>
+                    <input type="hidden" id="idUsuario" />
+                </div>
+                <div class="modal-body">
+                    <div class="ibox-content">
+                        <form method="post" novalidate="novalidate">
+                            <p>Ingrese la información.</p>
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon "><i class="fa fa-lock fa-fw" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control" id="rut_add" placeholder="Ingrese rut" name="number" minlength="7" required maxlength="8" autocomplete="off">
+                                </div>
+                                <span id="errorRut" class="error text-danger no-margins"></span>
+
+                            </div>
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i></span>
+                                    <select class="form-control" id="perfil_add" required>
+                                        <option selected value="0">Seleccione perfíl</option>
+                                        <option value="Administrador">Administrador</option>
+                                        <option value="Visual todo">Visual todo</option>
+                                        <option value="Sucursal">Sucursal</option>
+
+                                    </select>
+                                </div>
+                                <span id="errorPerfil" class="error text-danger no-margins"></span>
+                            </div>
+
+                            <div class="form-group no-margins" style="height:58px">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-building-o fa-fw" aria-hidden="true"></i></span>
+                                    <select class="form-control" id="sucursal_add" required>
+                                        <option selected value="0">Seleccione sucursal</option>
+                                        @{
+                                            foreach (var item in Model.Item2)
+                                            {
+                                                <option value="@item.Id">@item.sucursal</option>
+                                            }
+                                        }
+
+                                    </select>
+                                </div>
+                                <span id="errorSucursal" class="error text-danger no-margins"></span>
+                            </div>
+                            <div class="form-group text-right">
+                                <button type="button" class="btn btn-white CerrarModal" data-dismiss="modal">Cerrar</button>
+                                <button type="button" class="btn btn-primary GuardarUsuario" onclick="Agregar()">Guardar usuario</button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal inmodal" id="EditarModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    <i class="fa fa-clock-o modal-icon"></i>
+                    <h4 class="modal-title">Editar Usuario</h4>
+                    <small>Verifique todos los campos.</small>
+
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <p>Ingrese la información a editar.</p>
+                        <div class="form-group no-margins" style="height:58px">
+                            <div class="input-group">
+                                <span class="input-group-addon "><i class="fa fa-lock fa-fw" aria-hidden="true"></i></span>
+                                <input class="form-control" id="rut_edit" placeholder="Rut" required maxlength="8" min="7" autocomplete="off">
+                                <input type="hidden" id="idUsuario" />
+                            </div>
+                            <span id="errorRutEdit" class="error text-danger no-margins"></span>
+                        </div>
+
+                        <div class="form-group no-margins" style="height:58px">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i></span>
+                                <select class="form-control" id="perfil_edit">
+                                    <option selected value="0">Seleccione perfíl</option>
+                                    <option>Administrador</option>
+                                    <option>Visual todo</option>
+                                    <option>Sucursal</option>
+
+                                </select>
+                            </div>
+                            <span id="errorPerfilEdit" class="error text-danger no-margins"></span>
+                        </div>
+
+                        <div class="form-group no-margins" style="height:58px">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-building-o fa-fw" aria-hidden="true"></i></span>
+                                <select class="form-control" id="sucursal_edit">
+                                    <option selected value="0">Seleccione sucursal</option>
+                                    @{
+                                        foreach (var item in Model.Item2)
+                                        {
+
+                                            <option value="@item.Id">@item.sucursal</option>
+
+                                        }
+                                    }
+
+                                </select>
+                            </div>
+                            <span id="errorSucursalEdit" class="error text-danger no-margins"></span>
+                        </div>
+
+                        <div class="form-group text-right">
+                            <button type="reset" class="btn btn-white CerrarModal" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary" onclick="Editar()">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal CARGA -->
+    <div class="modal fade" id="loadMe" tabindex="-1" role="dialog" aria-labelledby="loadMeLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content pg-content">
+                <div class="modal-body text-center">
+                    <div class="loader"></div>
+                    <div clas="loader-txt">
+                        <p style="font-size:13px; color:#666;" id="pro_text"><br><br><small style="font-size:11.5px; color:#999;" id="prosmall_text"></small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+}
+
+@section Styles {
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/dataTables/dataTablesStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/Content/plugins/chosen/chosenStyles")
+
+}
+
+
+
+@section Scripts{
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/iCheck")
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/bundles/inspinia")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/jeditable")
+
+    
+
+    <script type="text/javascript">
+        //Cpatura de datos al presionar el btn editar
+        $(document).on("click", ".CapturarDatos", function () {
+            var id = $(this).data('id_usurio');
+            var rut = $(this).data('rut');
+            var tipo = $(this).data('tipo');
+            var sucursal = $(this).data('sucursal');
+
+
+
+            $("#idUsuario").val(id);
+            $("#rut_edit").val(rut);
+            $("#perfil_edit").val(tipo);
+            $("#sucursal_edit").val(sucursal);
+
+            console.log(id);
+
+        });
+
+    </script>
+
+    <script type="text/javascript">
+        //agregarUsuario
+        function Agregar() {
+            var rut = $("#rut_add").val();
+            var perfil = $("#perfil_add").val();
+            var sucursal = $("#sucursal_add").val();
+
+
+
+            if (rut.length < 7) {
+                $("#errorRut").text("Este campo requiere como mínimo 7 digitos*.");
+                $("#rut_add").addClass("error");
+            }if (rut == "") {
+                $("#errorRut").text("Este campo es requerido*.");
+                $("#rut_add").addClass("error");
+            }  if (perfil == 0) {
+                $("#errorPerfil").text("Este campo es requerido*.");
+                $("#perfil_add").addClass("error");
+            } if (sucursal == 0) {
+                $("#errorSucursal").text("Este campo es requerido*.");
+                $("#sucursal_add").addClass("error");
+            } else {
+
+                swal({
+                    title: "Estas seguro?",
+                    text: "El usuario " + rut +"se grabará en la Base de Datos.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#ED5565',
+                    confirmButtonText: 'Si',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                },
+                function (isConfirm) {
+
+                    if (isConfirm) {
+
+                        $("#pro_text").html("Creando Usuario.");
+                        $("#prosmall_text").html("Espere unos instantes...");
+                        $("#loadMe").modal({
+                            backdrop: "static",
+                            keyboard: false,
+                            show: true
+                        });
+
+                        setTimeout(function () {
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("AgregarUsuarios", "Usuarios_convenio")',
+                                data: { rut: rut, perfil: perfil, sucursal: sucursal},
+                                dataType: "json",
+                                async: false,
+                                success: function (json) {
+                                    $("#loadMe").modal("hide");
+
+                                    if (json.status == 1) {
+                                        swal({
+                                            title: "Exitoso!",
+                                            text: "El usuario a sido ingresado con exito.!",
+                                            type: "success",
+                                            html: true
+                                        }, function () {
+                                            location.href = '@Url.Action("MantenedorUsuarios", "Usuarios_convenio")';
+                                        });
+                                    } else {
+                                        swal("Error!", json.mensaje, "warning");
+                                        $("#rut_add").val("");
+                                        $("#perfil_add").val(0);
+                                        $("#sucursal_add").val(0);
+
+                                    }
+                                }
+                            });
+                        }, 1200);
+                    }
+                });
+
+
+
+            }
+
+
+
+        }
+
+        //EditarUsuario
+        function Editar() {
+            var id = $("#idUsuario").val();
+            var rut = $("#rut_edit").val();
+            var perfil = $("#perfil_edit").val();
+            var sucursal = $("#sucursal_edit").val();
+
+
+            if (rut.length < 7) {
+                $("#errorRutEdit").text("Este campo requiere como mínimo 7 digitos*.");
+                $("#rut_add").addClass("error");
+            } if (rut == "") {
+                $("#errorRutEdit").text("Este campo es requerido*.");
+                $("#rut_edit").addClass("error");
+            } if (perfil == 0) {
+                $("#errorPerfilEdit").text("Este campo es requerido*.");
+                $("#perfil_edit").addClass("error");
+            } if (sucursal == 0) {
+                $("#errorSucursalEdit").text("Este campo es requerido*.");
+                $("#sucursal_edit").addClass("error");
+            } else {
+                swal({
+                    title: "Estas seguro?",
+                    text: "Los Datos de este Usuario serán Editados.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Si',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                },
+                function (isConfirm) {
+
+                    if (isConfirm) {
+
+                        $("#pro_text").html("Editando Usuario .");
+                        $("#prosmall_text").html("Espere unos instantes...");
+                        $("#loadMe").modal({
+                            backdrop: "static",
+                            keyboard: false,
+                            show: true
+                        });
+
+                        setTimeout(function () {
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("EditarUsuario", "Usuarios_convenio")',
+                                data: { id: id, rut: rut, perfil: perfil, sucursal: sucursal},
+                                dataType: "json",
+                                async: false,
+                                success: function (json) {
+                                    $("#loadMe").modal("hide");
+
+                                    if (json.status == 1) {
+                                        swal({
+                                            title: "Exitoso!",
+                                            text: "El Usuario a sido Editado.",
+                                            type: "success",
+                                            html: true
+                                        }, function () {
+                                            location.href = '@Url.Action("MantenedorUsuarios", "Usuarios_convenio")';
+                                        });
+                                    } else {
+                                        swal("Error!", json.mensaje, "warning");
+
+                                    }
+                                }
+                            });
+                        }, 1200);
+                    }
+                });
+            }
+        }
+        //cambiar estado de usuario
+        function cambiaestado(estadoid)
+            {
+
+            let westado = 0;
+            if (document.getElementById(estadoid).checked) westado = 1;
+            else westado = 0;
+            console.log("" + westado + "" + estadoid)
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("EditarEstadoUsuario", "Usuarios_convenio")',
+
+                data: {westado: westado, estadoid:estadoid},
+                dataType: "json",
+                async: false,
+                success: function (json) {
+                    $("#loadMe").modal("hide");
+
+                    if (json.status == 1) {
+                        swal({
+                            title: "Exitoso!",
+                            text: "Estado del Usuario ha sido Modificado.",
+                            type: "success",
+                            html: true
+                        }, function () {
+                            location.href = '@Url.Action("MantenedorUsuarios", "Usuarios_convenio")';
+                        });
+                    } else {
+                        swal("Error!", json.mensaje, "warning");
+                    }
+                }
+            });
+        }
+
+
+        function verPaginaNueva(nPagina) {
+        if (nPagina <= 0)
+            nPagina = 1;
+        var data2 = new FormData();
+        console.log(nPagina);
+        data2.append("pagina", nPagina);
+
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("MantenedorUsuarios2", "Usuarios_convenio")',
+            processData: false,
+            contentType: false,
+            data: data2,
+            dataType: 'html',
+            beforeSend: function () {
+                $("#TablaUsuarios").html('');
+                $("#TablaUsuarios").html('<img src="../../Images/load_2.gif"/>');
+
+            },
+            success: function (data) {
+
+
+                $("#TablaUsuarios").html('');
+                $("#TablaUsuarios").html(data);
+            }
+        });
+    }
+
+    </script>
+    <script type="text/javascript">
+        //input rut_add acepta solo numeros
+        $('#rut_add').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value != null) {
+                $("#errorRut").text("");
+                $("#rut_add").removeClass("error");
+
+            }
+        });
+        //input rut_edit acepta solo numeros
+        $('#rut_edit').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value != null) {
+                $("#errorRutEdit").text("");
+                $("#rut_edit").removeClass("error");
+
+            }
+        });
+
+
+
+        //boton cerrar modal
+        $(document).on("click", ".CerrarModal", function () {
+            $("#errorRut").text("");
+            $("#errorPerfil").text("");
+            $("#errorSucursal").text("");
+
+            $("#rut_add").removeClass("error");
+            $("#perfil_add").removeClass("error");
+            $("#sucursal_add").removeClass("error");
+
+            $("#errorRutEdit").text("");
+            $("#errorPerfilEdit").text("");
+            $("#errorSucursalEdit").text("");
+
+            $("#rut_edit").removeClass("error");
+            $("#perfil_edit").removeClass("error");
+            $("#sucursal_edit").removeClass("error");
+        });
+
+    </script>
+
+
+
+
+
+    <script type="text/javascript">
+        //eliminar mensaje de error perfil
+        $('#perfil_add').on('change', function () {
+
+            $("#errorPerfil").text("");
+            $("#perfil_add").removeClass("error");
+
+
+        });
+    </script>
+
+    <script type="text/javascript">
+        //eliminar mensaje de error sucursal
+        $('#sucursal_add').on('change', function () {
+
+            $("#errorSucursal").text("");
+            $("#sucursal_add").removeClass("error");
+
+
+        });
+    </script>
+    <script>
+        var data2;
+        $(document).on("click", ".BuscarUsuarios", function () {
+
+            var dato = $("#Dato_busqueda").val();
+
+            if (dato != "") {
+                data2 = new FormData();
+                data2.append("dato", dato);
+                $.ajax({
+                    type: "POST",
+                        url: '@Url.Action("Busqueda", "Usuarios_convenio")',
+                        processData: false,
+                        contentType: false,
+
+                        data: data2,
+                        dataType: 'html',
+                        beforeSend: function () {
+                            $("#TablaUsuarios").html('');
+                            $("#TablaUsuarios").html('<img src="../../Images/load_2.gif"/>');
+
+
+                        },
+                        success: function (data) {
+                            $("#TablaUsuarios").html('');
+                            $("#TablaUsuarios").html(data);
+                        }
+                    });
+
+            } else {
+                swal({
+                    title: "¡Mensaje!",
+                    text: "Debe Ingresar un valor de Busqueda",
+                    type: "warning",
+                    html: true
+                });
+
+
+            }
+
+        });
+    </script>
+    <script type="text/javascript">
+        $('#Dato_busqueda').on('input', function () {
+
+            if (this.value == "") {
+                url = '@Url.Action("MantenedorUsuarios", "Usuarios_convenio")';
+                $(location).attr('href', url);
+
+            }
+        });
+
+    </script>
+    <script type="text/javascript">
+        $(document).on("click", ".descargarExcel", function ()
+        {
+            $("#pro_text").html("Creando excel.");
+            $("#prosmall_text").html("Espere unos instantes...");
+            $("#loadMe").modal({
+                backdrop: "static",
+                text: "@ViewBag.avance",
+                keyboard: false,
+                show: true
+            });
+            location.href = '@Url.Action("DescargarExcel", "Usuarios_convenio")';
+            setResetInterval2(true);
+        });
+
+
+    </script>
+    <script>
+        var timer = 0;
+
+        function setResetInterval2(bool) {
+
+            if (bool) {
+                //verificarDown();
+                timer = setInterval(function () {
+                    verificarDown();
+                }, 2000);
+            } else {
+                clearInterval(timer);
+            }
+        }
+    </script>
+    @*Interval*@
+    <script>
+        function verificarDown() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("validarDescarga", "Usuarios_convenio")',
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data != "0") {
+                        $("#loadMe").modal("hide");
+                        $('.descargarExcel').prop('disabled', false);
+                        setResetInterval2(false);
+                    }
+                }
+            });
+        }
+    </script>
+    
+
+}
+

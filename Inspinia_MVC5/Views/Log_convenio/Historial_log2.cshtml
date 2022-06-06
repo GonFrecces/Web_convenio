@@ -1,0 +1,97 @@
+﻿@model Tuple<List<Inspinia_MVC5.Models.Model_convenio.Login_Info_Convenios>, List<Inspinia_MVC5.Models.Model_convenio.Usuarios_Convenios>>
+@{
+    Layout = null;
+
+    int MostrarRegistros = Convert.ToInt32(ViewBag.RegistrosMostrar);
+    int pagina = Convert.ToInt32(ViewBag.Pagin_Listado);
+    var contar_pagina = 1;
+    int PaginaSiguiente = pagina + 1;
+    int PaginaAnterior = pagina - 1;
+    double CantidadRegistros = ViewBag.CantidadLog;
+    double Cantidad = (CantidadRegistros / MostrarRegistros);
+    var CantidadPaginas = Math.Ceiling(Cantidad);
+}
+
+@{
+    if (CantidadRegistros > 0)
+    {
+        <table class="table  table-bordered table-hover " id="tablaLog">
+
+
+            <thead>
+                <tr role="row">
+                    <th class="sorting">Usuario</th>
+                    <th class="sorting">Tipo</th>
+                    <th class="sorting">Login</th>
+                    <th class="sorting">Tiempo log</th>
+                    <th class="sorting">Logout</th>
+                </tr>
+            </thead>
+
+            <tbody data-paginas="@CantidadPaginas">
+                @{
+                    foreach (var item in Model.Item1)
+                    {
+                        var tipo = Model.Item2.Where(x => x.Id == item.id_usuario).Select(x => x.tipo).FirstOrDefault();
+                        var rut = Model.Item2.Where(x => x.Id == item.id_usuario).Select(x => x.nombre).FirstOrDefault();
+                        <tr class="gradeX odd" role="row">
+
+                            <td>@rut</td>
+                            <td>@tipo</td>
+                            <td class="center">@item.login</td>
+                            @{
+                                if (item.tiempo_log == 1)
+                                {
+                                    <td class="center">@item.tiempo_log minuto</td>
+                                }
+                                else
+                                {
+                                    <td class="center">@item.tiempo_log minutos</td>
+                                }
+                            }
+                            
+                            <td class="center">@item.logout</td>
+
+                        </tr>
+                    }
+                }
+
+
+            </tbody>
+            <tfoot>
+
+                <tr>
+                    <td colspan="8">
+
+                        @if (contar_pagina > 0)
+                        {
+                            if (pagina > 1)
+                            {
+                                <a href="#" title="Anterior" onclick="verPaginaNueva(@PaginaAnterior)"><i class="fa fa-arrow-circle-o-left" style="font-size: 20px;"></i></a>
+                            }
+
+                            if (pagina < CantidadPaginas)
+                            {
+                                <a href="#" title="Siguiente" onclick="verPaginaNueva(@PaginaSiguiente)"> <i class="fa fa-arrow-circle-o-right" style="font-size: 20px;"></i></a>
+                            }
+                            <label>Mostrando pagina @pagina de @CantidadPaginas</label>
+                        }
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+    else
+    {
+        <table id="TablaLog2" class="table table-striped table-bordered table-hover dataTables-example">
+            <tbody>
+                <tr>
+                    <td colspan="44">No hay datos...</td>
+                </tr>
+            </tbody>
+
+        </table>
+    }
+
+}
+
